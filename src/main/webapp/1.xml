@@ -1,0 +1,23 @@
+<form name='processFilesForm' method='POST'>
+<table>
+
+<tr><td> </td><td><b>File</b></td><td><b>Document Type</b></td><td><b>Note</b></td><td><b>Size</b></td></tr>
+<tr><td> <input type='hidden' name='md5_1' value='d4bedeb8a5b5561247e0d9cbb8ba12a3'/>
+<div class='roundedOne'><input type='checkbox'  name='filecheck_1' id='filecheck_1' checked />
+<label for='filecheck_1'></label>
+</div></td>
+<td> <input type='text' class='biginput' size='60' name='filename_1' value='g7021b.BUJ_00040276.pdf'/> </td>
+<td> <input type='text' class='biginput'  name=doctype_'1' value=''/> </td>
+<td> <input type='text' class='biginput' size='15' name='note_1' value=''/> </td>
+<td>0 </td>
+</tr>
+
+<input type='hidden' name='dropId' value='1409724280749'/>
+<tr><td><div class='roundedOne' ><input type='checkbox' id='waitfor' name='waitfor' checked />
+<label for='waitFor'/>
+</div></td>
+<td>Wait for Upload</td></tr><tr><td></td>
+<td><a href='#' id='submitbutton' class='myButton' onclick='submitForm();'>Submit</a></td>
+</tr>
+</table>
+</form> 

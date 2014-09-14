@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+   <display-name>Drag drop Webapp - (c) Integration Architects </display-name>
+   <distributable/>
+		<welcome-file-list>
+			<welcome-file>index.html</welcome-file>
+		</welcome-file-list>
+<servlet>
+  <servlet-name>DragDropServlet</servlet-name>
+  <servlet-class>be.integrationarchitects.web.dragdrop.servlet.impl.DragDropServlet
+      </servlet-class>
+  <load-on-startup>1</load-on-startup>
+     <init-param>
+        <param-name>cfg</param-name>
+        <param-value>be.integrationarchitects.web.dragdrop.servlet.impl.DragDropServletConfigImpl</param-value>
+    </init-param>
+
+</servlet>
+	<servlet-mapping>
+       <servlet-name>DragDropServlet</servlet-name>
+       <url-pattern>/upload/*</url-pattern>
+     </servlet-mapping>
+	<servlet-mapping>
+       <servlet-name>DragDropServlet</servlet-name>
+       <url-pattern>/download/*</url-pattern>
+     </servlet-mapping>
+    
+    <error-page>
+        <!-- Uncaught exception -->
+        <error-code>500</error-code>
+        <location>/error/500.jsp</location>
+    </error-page>
+    <error-page>
+    <!-- functional  exception used for ajax functional error messages -->
+    <error-code>501</error-code>
+    <location>/error/501.jsp</location>
+</error-page>
+</web-app>
