@@ -5,13 +5,13 @@
 <project>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>be.integrationarchitects.web.dragdrop</groupId>
-	<artifactId>webbot</artifactId>
+	<artifactId>dragdrop</artifactId>
 	<version>1.1</version>
 
 	<description>DragnDrop html5 servlet</description>
 
 	<packaging>war</packaging>
-	<name>WEB Bot</name>
+	<name>Drag n Drop JS HTML5 servlet</name>
 
 	<dependencies>
 	
