@@ -64,7 +64,8 @@ public class RunJetty {
             throw new IllegalArgumentException("main web.xml not found, make sure src/main/webapp is a class folder classpath resource");
         }
        
-        String NAME_FOLDER="DragDropServlet";
+        //String NAME_FOLDER="DragDropServlet";
+        String NAME_FOLDER="dragdrop";
         
         String _s = mainURL.toString();
         System.out.println(_s);
