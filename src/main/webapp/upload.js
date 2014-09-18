@@ -439,8 +439,10 @@ function handleFileUpload(files,obj){
 	var filesok=true;
 	
 	//var fhtml="<table><tr><td><b>File</b></td><td><b>Size</b></td></tr>";
-	var ctx=getUrlParameter('context');//eg. dossier id as url parameter
-	//eg. http://127.0.0.1:8080/dragdrop/index.html?context=123
+	var ctxScope=getUrlParameter('ctxScope');//eg. subcontext like subpart of portal for uploading files
+	var ctxName=getUrlParameter('ctxName');//eg. dossier customer name
+	var ctxRef=getUrlParameter('ctxRef');//eg. dossier id as url parameter
+	//eg. http://localhost:9080/dragdrop/index.html?ctxScope=default&ctxName=IA,ctxRef=123
 
 	clearAll();
 
@@ -453,7 +455,7 @@ function handleFileUpload(files,obj){
    	if(file.size <= maxFileSizePerFile){
    		totalsize=totalsize+file.size;
    	
-   		 promises.push(formDataItem(fd,file,obj,ctx));
+   		 promises.push(formDataItem(fd,file,obj,ctxScope,ctxName,ctxRef));
 		//fhtml=fhtml+"<tr>";
 		//fhtml=fhtml+"<td class='filelist'>"+file.name+"</td><td class='filelist'>"+file.size+"</td>";
 		//fhtml=fhtml+"</tr>";
@@ -512,7 +514,7 @@ function formDataItemOLD( fd, file,obj, ctx){
 
 
 //IE10 compatibility
-function formDataItem( fd, file,obj, ctx){
+function formDataItem( fd, file,obj, ctxScope, ctxName, ctxRef){
 	var md5='';
 	var dfd = $.Deferred();
 	   	var reader = new FileReader(); 
@@ -524,7 +526,7 @@ function formDataItem( fd, file,obj, ctx){
 				binary += String.fromCharCode(bytes[i]);
 			}
 			md5=hashBinary(binary);
-			fd.append('FILEDATA'+',filesize='+file.size+',md5='+md5+',ctx='+ctx, file);
+			fd.append('FILEDATA'+',filesize='+file.size+',md5='+md5+',ctxScope='+ctxScope+',ctxName='+ctxName+',ctxRef='+ctxRef, file);
 
  
 			dfd.resolve();

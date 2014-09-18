@@ -23,8 +23,8 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.codec.binary.Hex;
 
 import be.integrationarchitects.web.dragdrop.servlet.DragDropConstants;
+import be.integrationarchitects.web.dragdrop.servlet.DragDropContext;
 import be.integrationarchitects.web.dragdrop.servlet.DragDropMimeFile;
-import be.integrationarchitects.web.dragdrop.servlet.DragDropMimeHandlerResponse;
 import be.integrationarchitects.web.dragdrop.servlet.DragDropMimeHandlerRequest;
 import be.integrationarchitects.web.dragdrop.servlet.Logger;
 
@@ -38,13 +38,14 @@ public class DragDropServletUtils {
 		this.checkHash=checkHash;
 		this.logger=logger;
 	}
-	protected void getHeadersParams(HttpServletRequest request, DragDropMimeHandlerRequest mr, boolean readFormDataPost) throws IOException{
-
+	protected Map<String,Map<String, String>> getHeadersParams(HttpServletRequest request,  boolean readFormDataPost) throws IOException{
+		Map<String,Map<String, String>> map=new HashMap<String,Map<String, String>> ();
+		
         Map<String, String> reqparams= new HashMap<String, String>();
         Map<String, String> reqheaders= new HashMap<String, String>();
-            
-        mr.setRequestHeaders(reqheaders);
-        mr.setRequestParams(reqparams);
+        map.put("params", reqparams);
+        map.put("headers", reqheaders);
+
         
         if(readFormDataPost){
     		// servlet api <3.0 will return null values for formdata post, from 3.0 servlet api use request.getParts()
@@ -116,7 +117,7 @@ dropId=1406409768959&md5_1=5b9f16527d8d27f541cbb3fabf432eb6&filename_1=17.csv&do
         
         Enumeration<String> params=request.getParameterNames();
         if(params==null)
-        	return;
+        	return map;
         
         while(params.hasMoreElements()){
         	String param=params.nextElement();
@@ -128,11 +129,11 @@ dropId=1406409768959&md5_1=5b9f16527d8d27f541cbb3fabf432eb6&filename_1=17.csv&do
         	reqparams.put(param, val);
 
         }
-        
+        return map;
 	}
 	
 	protected void getFilesToSubmitForPreparedRequest(DragDropMimeHandlerRequest mr) throws IOException{
-		if(mr.getDropID()==null || mr.getDropID().equals("")){
+		if(mr.getCtx().getDropID()==null || mr.getCtx().getDropID().equals("")){
 			throw new RuntimeException("dropId form submit param missing");
 		}
 		
@@ -149,7 +150,7 @@ dropId=1406409768959&md5_1=5b9f16527d8d27f541cbb3fabf432eb6&filename_1=17.csv&do
 			if(! f.isFile()){
 				continue;
 			}
-			if(!fileName.startsWith(mr.getUser()+"."+mr.getDropID())){
+			if(!fileName.startsWith(mr.getCtx().getUser()+"."+mr.getCtx().getDropID())){
 				continue;
 			}
 			if(fileName.endsWith(".inf")){
@@ -263,14 +264,14 @@ Content-Type: application/octet-stream
 	* ------WebKitFormBoundaryRBrfsAQYjBh5Rlfm--
 	 * 
 	 */
-	protected File serialize(String user,String randomId, ServletInputStream instream,int fileUploadSpeed) throws IOException{
+	protected File serialize(DragDropContext ctx, ServletInputStream instream,int fileUploadSpeed) throws IOException{
 		
         byte[] buff=new byte[1024];
         int bytesread=0;
         int totalBytes=0;
         int totalBytes2=0;
         //ByteArrayOutputStream bout=new ByteArrayOutputStream();
-        File f=new File(folder,user+"."+randomId+".upload.mime");
+        File f=new File(folder,ctx.getUser()+"."+ctx.getDropID()+".upload.mime");
         FileOutputStream fout=new FileOutputStream(f);
         while((bytesread=instream.read(buff))>0){
         	totalBytes+=bytesread;

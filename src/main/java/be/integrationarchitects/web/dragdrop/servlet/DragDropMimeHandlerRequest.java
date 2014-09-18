@@ -12,7 +12,10 @@ public class DragDropMimeHandlerRequest extends DragDropMimeHandlerReqResp{
 	private List<DragDropMimeFile> files;
 
 	
-	public DragDropMimeHandlerRequest(){
+	public DragDropMimeHandlerRequest(Map<String, String> requestParams, Map<String, String> requestHeaders, DragDropContext contx){
+		this.setRequestParams(requestParams);
+		this.setRequestHeaders(requestHeaders);
+		setCtx(contx);
 		
 	}
 	

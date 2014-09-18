@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.fileupload.MultipartStream;
 
+import be.integrationarchitects.web.dragdrop.servlet.DragDropContext;
 import be.integrationarchitects.web.dragdrop.servlet.DragDropMimeFile;
 import be.integrationarchitects.web.dragdrop.servlet.DragDropMimeHandlerResponse;
 import be.integrationarchitects.web.dragdrop.servlet.DragDropServletConfig;
@@ -118,9 +119,15 @@ public class DragDropServlet extends HttpServlet {
     }
 
 	protected void doPrepare(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException{
-		DragDropMimeHandlerRequest mimeRequest=new DragDropMimeHandlerRequest();
-		utils.getHeadersParams(request,mimeRequest,false);
-		mimeRequest.setDropID(getRandom());
+		
+		Map<String, Map<String, String>> p=utils.getHeadersParams(request,false);
+		String ddropId=getRandom();
+		p.get("params").put(DragDropContext.CTX_ID,ddropId );
+		DragDropContext ctx=new DragDropContext(cfg.getHandler().getUserForRequest(request),p.get("params"),p.get("headers"));
+		
+		DragDropMimeHandlerRequest mimeRequest=new DragDropMimeHandlerRequest(p.get("params"),p.get("headers"),ctx);
+		
+		//mimeRequest.getCtx().setDropID(getRandom());
 		
 		//test server side functional error
 //		if(1==1){
@@ -129,9 +136,9 @@ public class DragDropServlet extends HttpServlet {
 		//}
 		
         File f=null;
-        String user=cfg.getHandler().getUserForRequest(request);
+        //String user=cfg.getHandler().getUserForRequest(request);
         try{
-        	f=utils.serialize(user, mimeRequest.getDropID(),request.getInputStream(),cfg.getFileUploadSpeed());
+        	f=utils.serialize(mimeRequest.getCtx(),request.getInputStream(),cfg.getFileUploadSpeed());
         }catch(IllegalArgumentException e){
         	logger.logError("ERROR:"+e.getMessage(),e);
         	setServerError(request,response,"Error saving prepare request");
@@ -161,9 +168,9 @@ public class DragDropServlet extends HttpServlet {
         	logger.logTrace("Boundary::"+boundary);
         }
         mimeRequest.setMimeBoundary(boundary);
-        mimeRequest.setUser(cfg.getHandler().getUserForRequest(request));
+       // mimeRequest.getCtx().setUser(cfg.getHandler().getUserForRequest(request));
         try{
-        	prepareMultiPartFile(user,mimeRequest,f,response);
+        	prepareMultiPartFile(mimeRequest,f,response);
         }catch(Throwable e){
         	logger.logError("ERROR:"+e.getMessage(),e);
         	setServerError(request,response,"Error prepareMultiPartFile");
@@ -214,11 +221,16 @@ public class DragDropServlet extends HttpServlet {
 	protected void doSubmit(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException{
 		
 		logger.logDebug("do submit");
-		DragDropMimeHandlerRequest mr=new DragDropMimeHandlerRequest();
 
-		utils.getHeadersParams(request,mr,true);
-		mr.setDropID(mr.getRequestParams().get("dropId"));
-		mr.setUser(cfg.getHandler().getUserForRequest(request));
+		
+		Map<String, Map<String, String>> p=utils.getHeadersParams(request,true);
+		DragDropContext ctx=new DragDropContext(cfg.getHandler().getUserForRequest(request),p.get("params"),p.get("headers"));
+		
+		DragDropMimeHandlerRequest mr=new DragDropMimeHandlerRequest(p.get("params"),p.get("headers"),ctx);
+	
+		
+		//mr.getCtx().setDropID(mr.getRequestParams().get("dropId"));
+		//mr.getCtx().setUser(cfg.getHandler().getUserForRequest(request));
 		
 		//get files prepared, now submitting
 		utils.getFilesToSubmitForPreparedRequest(mr);
@@ -281,19 +293,27 @@ public class DragDropServlet extends HttpServlet {
     	request.setAttribute("SERVER_ERROR", msg);
 	}
 	
+	
 	public void doDocTypes( HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException{
 		if(cfg.getHandler()==null){
         	setServerError(request,response,"NO HANDLER");
 			return;
 		}
+		
+		
+		Map<String, Map<String, String>> p=utils.getHeadersParams(request,false);
+		DragDropContext ctx=new DragDropContext(cfg.getHandler().getUserForRequest(request),p.get("params"),p.get("headers"));
+		
+	
+		
 		String html="";
-		for(String dt:cfg.getDocumentTypeHandler().getDocumentTypes()){
+		for(String dt:cfg.getDocumentTypeHandler().getDocumentTypes(ctx)){
 			html+=dt+",";
 		}
 		response.getWriter().write(html);
 	}
 	
-	protected void prepareMultiPartFile(String user, DragDropMimeHandlerRequest mimeRequest, File f, HttpServletResponse response) throws IOException{
+	protected void prepareMultiPartFile(DragDropMimeHandlerRequest mimeRequest, File f, HttpServletResponse response) throws IOException{
 		logger.logTrace("process multipart");
 		mimeRequest.setFiles(new ArrayList<DragDropMimeFile>());
 		
@@ -322,7 +342,7 @@ public class DragDropServlet extends HttpServlet {
               		for(String key:mimeRequest.getRequestParams().keySet()){
               			params.put(key,mimeRequest.getRequestParams().get(key));
               		}
-              		params.put("user", user);
+              		params.put("user", mimeRequest.getCtx().getUser());
               		
             		ByteArrayOutputStream bout=new ByteArrayOutputStream();
         			bout.write(params.toString().getBytes());

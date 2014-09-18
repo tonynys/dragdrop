@@ -52,7 +52,7 @@ public class DragDropFileEventHandlerDefaultImpl implements DragDropFileEventHan
 	private void prepareAndReturnHtml(DragDropMimeHandlerRequest request,DragDropMimeHandlerResponse resp) {
 		String html="";
 	       // String html="<form name='"+DragDropConstants.FORM_PROCESS_FILES_NAME+"' method='POST'>";
-	        html+="<input type='hidden' name='"+DragDropConstants.FORM_PROCESS_FILES_DROPID+"' value='"+request.getDropID()+"'/>";
+	        html+="<input type='hidden' name='"+DragDropConstants.FORM_PROCESS_FILES_DROPID+"' value='"+request.getCtx().getDropID()+"'/>";
 	        
 	        if(request.getFiles()!=null){
 	            //html+="<table>";
@@ -69,7 +69,7 @@ public class DragDropFileEventHandlerDefaultImpl implements DragDropFileEventHan
 	                html+="<td> <input type='text' class='"+DragDropConstants.CSS_BIGINPUT+"' size='60' name='"+DragDropConstants.FORM_PROCESS_FILES_FILENAME+i+"' value='"+f.getFileName()+"'/> </td>";
 
 	                //name of inputfield must be doctype_xx : javascript will take all form input elements with name doctype_ and attach autocomplete handler
-	                html+="<td> <input type='text' class='"+DragDropConstants.CSS_BIGINPUT+"'  name='"+DragDropConstants.FORM_PROCESS_FILES_DOCTYPE+i+"' value='"+cfg.getDocumentTypeHandler().getDocumentTypeForFileName(f.getFileName())+"'/> </td>";
+	                html+="<td> <input type='text' class='"+DragDropConstants.CSS_BIGINPUT+"'  name='"+DragDropConstants.FORM_PROCESS_FILES_DOCTYPE+i+"' value='"+cfg.getDocumentTypeHandler().getDocumentTypeForFileName(request.getCtx(),f.getFileName())+"'/> </td>";
 	                if(cfg.includeNotes()){
 	                	html+="<td> <input type='text' class='"+DragDropConstants.CSS_BIGINPUT+"' size='15' name='"+DragDropConstants.FORM_PROCESS_FILES_NOTE+i+"' value=''/> </td>";
 	                }
@@ -100,9 +100,9 @@ public class DragDropFileEventHandlerDefaultImpl implements DragDropFileEventHan
 	        		i++;
 		    		DragDropMimeFileResponse file=new DragDropMimeFileResponse(f);
 		    		resp.getFiles().add(file);
-		    		file.setDropId(request.getDropID());
+		    		file.setDropId(request.getCtx().getDropID());
 		    		file.setChecked(true);
-		    		file.setDocumentType(cfg.getDocumentTypeHandler().getDocumentTypeForFileName(f.getFileName()));
+		    		file.setDocumentType(cfg.getDocumentTypeHandler().getDocumentTypeForFileName(request.getCtx(),f.getFileName()));
 	        		
 	        	}
 	        }

@@ -1,14 +1,16 @@
 package be.integrationarchitects.web.dragdrop.servlet.impl;
 
 import be.integrationarchitects.web.dragdrop.servlet.DocumentTypeHandler;
+import be.integrationarchitects.web.dragdrop.servlet.DragDropContext;
 
 public class DocumentTypeHandlerSimple implements DocumentTypeHandler{
+	
+	//better put this in a .js file, so it is at runtime changeable, see example
 	public static String[] DOCTYPES={"Boxi","CommitteePresentation","Contract","ContractSigned","Divers", "Quote","Supplier"};
-
 	public static String[] FILE_EXTENSIONS={"pdf","docx","doc","rtf","txt", "xls","xlsx","eml","msg","zip","jpeg","png","ppt","pptx"};
 
 	@Override
-	public String[] getDocumentTypes() {
+	public String[] getDocumentTypes(DragDropContext ctx) {
 		//clone array
 		String[] ss=new String[DOCTYPES.length];
 		int i=0;
@@ -20,7 +22,7 @@ public class DocumentTypeHandlerSimple implements DocumentTypeHandler{
 
 
 	@Override
-	public String getDocumentTypeForFileName(String fileName) {
+	public String getDocumentTypeForFileName(DragDropContext ctx,String fileName) {
 		String p=fileName.trim().toLowerCase();
 		if(p.indexOf("ctr")>=0 || p.indexOf("contract")>=0 || p.indexOf("contrat")>=0 ){
 			return "Contract";
@@ -43,7 +45,7 @@ public class DocumentTypeHandlerSimple implements DocumentTypeHandler{
 
 
 	@Override
-	public String[] getFileExtensions() {
+	public String[] getFileExtensions(DragDropContext ctx) {
 		return FILE_EXTENSIONS;
 	}
 	
