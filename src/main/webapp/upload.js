@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2014 Integration Architects
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+ 
 /**
 Two-Phase File Upload Html5 Drag & Drop - (c) Integration Architects - 2014a
 
@@ -144,7 +160,16 @@ function clearAll(){
 
 }
 
+function getContext(){
+	var ctx={ctxScope:getUrlParameter('ctxScope'),ctxName:getUrlParameter('ctxName'),ctxRef:getUrlParameter('ctxRef')};
+	return ctx;
+}
 
+function getContextHeaders(){
+	var ctx=getContext();
+
+    return { 'ctxScope': ctx.ctxScope, 'ctxName':ctx.ctxName,'ctxRef':ctx.ctxRef };
+}
 
 function sendFileToServer(formData,status){
     $("#fileUploadStatus").append(htmlSpinner);
@@ -161,6 +186,7 @@ function sendFileToServer(formData,status){
             return xhrobj;
         },
     url: prepareURL,
+    headers: getContextHeaders(),
     type: "POST",
     contentType:false,
     processData: false,
@@ -237,7 +263,8 @@ function sendFileToServerOK(data, contenttype){
 		            if(includeNotes){
 	                	html=html+"<td> <input type='text' class='biginput' size='15' name='note_"+i+"' value=''/> </td>";
 	                }
-	                html=html+"<td>"+file.size+" </td>";
+	                var sizekb=file.size/1024+"KB.";
+	                html=html+"<td>"+sizekb+" </td>";
 	      
 	                html=html+"</tr>";
 					
@@ -257,7 +284,7 @@ function sendFileToServerOK(data, contenttype){
                 
        
             
-            console.log(html);
+            //console.log(html);
             $("#submitform").append(html); 
 
         	//attach autocomplete input handlers for doctype
@@ -359,7 +386,7 @@ $('#submitbutton').hide();//avoid users clicking twice the submit button
 //var formData = new FormData(form.serialize());
 var formData = new FormData();
 formData.append('formsubmitdata',form.serialize());
-console.log(form.serialize()); 
+//console.log(form.serialize()); 
  
 console.log("BB");
 
@@ -370,6 +397,7 @@ console.log("BB");
             return xhrobj;
         },
     url: submitURL,
+    headers: getContextHeaders(),
     type: "POST",
     contentType:false,
     processData: false,
@@ -439,10 +467,8 @@ function handleFileUpload(files,obj){
 	var filesok=true;
 	
 	//var fhtml="<table><tr><td><b>File</b></td><td><b>Size</b></td></tr>";
-	var ctxScope=getUrlParameter('ctxScope');//eg. subcontext like subpart of portal for uploading files
-	var ctxName=getUrlParameter('ctxName');//eg. dossier customer name
-	var ctxRef=getUrlParameter('ctxRef');//eg. dossier id as url parameter
-	//eg. http://localhost:9080/dragdrop/index.html?ctxScope=default&ctxName=IA,ctxRef=123
+	var ctx=getContext();
+	//eg. http://127.0.0.1:8080/dragdrop/upload.html?ctxScope=Dossiers&ctxName=MyDosier&ctxRef=123
 
 	clearAll();
 
@@ -455,7 +481,7 @@ function handleFileUpload(files,obj){
    	if(file.size <= maxFileSizePerFile){
    		totalsize=totalsize+file.size;
    	
-   		 promises.push(formDataItem(fd,file,obj,ctxScope,ctxName,ctxRef));
+   		 promises.push(formDataItem(fd,file,obj,ctx));
 		//fhtml=fhtml+"<tr>";
 		//fhtml=fhtml+"<td class='filelist'>"+file.name+"</td><td class='filelist'>"+file.size+"</td>";
 		//fhtml=fhtml+"</tr>";
@@ -501,7 +527,7 @@ function formDataItemOLD( fd, file,obj, ctx){
 			md5=hashBinary(e.target.result);
 			console.log('MD5='+md5);
 			//servlet expects FILEDATA prefix for file params
-	        fd.append('FILEDATA'+',filesize='+file.size+',md5='+md5+',ctx='+ctx, file);
+	        fd.append('FILEDATA'+',filesize='+file.size+',md5='+md5, file);
 
  
 			dfd.resolve();
@@ -514,7 +540,7 @@ function formDataItemOLD( fd, file,obj, ctx){
 
 
 //IE10 compatibility
-function formDataItem( fd, file,obj, ctxScope, ctxName, ctxRef){
+function formDataItem( fd, file,obj, ctx){
 	var md5='';
 	var dfd = $.Deferred();
 	   	var reader = new FileReader(); 
@@ -526,7 +552,7 @@ function formDataItem( fd, file,obj, ctxScope, ctxName, ctxRef){
 				binary += String.fromCharCode(bytes[i]);
 			}
 			md5=hashBinary(binary);
-			fd.append('FILEDATA'+',filesize='+file.size+',md5='+md5+',ctxScope='+ctxScope+',ctxName='+ctxName+',ctxRef='+ctxRef, file);
+			fd.append('FILEDATA'+',filesize='+file.size+',md5='+md5, file);
 
  
 			dfd.resolve();

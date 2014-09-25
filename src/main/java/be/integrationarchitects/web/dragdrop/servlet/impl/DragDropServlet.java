@@ -29,18 +29,40 @@ import be.integrationarchitects.web.dragdrop.servlet.Logger;
 
 
 
+/*
+ * Copyright (C) 2014 Integration Architects
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /**
- * Servlet for upload/download through drag and drop
- * For Upload , it is in 2 phases:
+ * Servlet for upload/download through drag and drop. It can return html or JSON, by default JSON so all UI rendering is done at client.
+ * 
+ * For Upload , process has 2 steps:
  * 1. Prepare: upload 1 multipart stream with multiple bodyparts (files). Return a jsp/html with the files details
  * 2. Submit: process the files selected in the selection the user made after step 1
  * 
- * client side: see http://hayageek.com/drag-and-drop-file-upload-jquery/
- *  uses jars:  commons-io, commons-codec, commons-file-upload
+ * Designed with a minimum of external dependencies in mind, to avoid version clashes, eg. for logging, json/jaxb, Spring, jee, etc...
+ *  minimal jars:  commons-io, commons-codec, commons-file-upload
+ *  all other jars are for Runjetty testcase only
+ *
+ * Servlet 2.0 api container compatible (although 3.0 getParts would be nice)
  *  
- *  all other jars are for Runjetty
+ * Completely pluggable using servlet config startup parameter
  * 
- * @author tony
+ * Uses Http response code 501 so Browser rest client can check on http 501 to check functional errors
+ * 
+ * @author tony nys
  *
  */
 public class DragDropServlet extends HttpServlet {
@@ -124,6 +146,11 @@ public class DragDropServlet extends HttpServlet {
 		String ddropId=getRandom();
 		p.get("params").put(DragDropContext.CTX_ID,ddropId );
 		DragDropContext ctx=new DragDropContext(cfg.getHandler().getUserForRequest(request),p.get("params"),p.get("headers"));
+		if(!ctx.validateContext()){
+        	logger.logError("ERROR:context params missing");
+        	setServerError(request,response,"ERROR:context params missing");
+        	return;
+		}
 		
 		DragDropMimeHandlerRequest mimeRequest=new DragDropMimeHandlerRequest(p.get("params"),p.get("headers"),ctx);
 		
@@ -228,6 +255,12 @@ public class DragDropServlet extends HttpServlet {
 		
 		DragDropMimeHandlerRequest mr=new DragDropMimeHandlerRequest(p.get("params"),p.get("headers"),ctx);
 	
+		if(!ctx.validateContext()){
+        	logger.logError("ERROR:context params missing");
+        	setServerError(request,response,"ERROR:context params missing");
+        	return;
+		}
+
 		
 		//mr.getCtx().setDropID(mr.getRequestParams().get("dropId"));
 		//mr.getCtx().setUser(cfg.getHandler().getUserForRequest(request));
