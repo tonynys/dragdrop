@@ -1,3 +1,4 @@
+/**
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -7,6 +8,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import javax.inject.Inject;
+*/
 
 /**
  * 
@@ -15,8 +17,9 @@ import javax.inject.Inject;
  * @author tony
  *
  */
-@RunWith(Arquillian.class) 
+//@RunWith(Arquillian.class) 
 public class GreeterTest {
+	/**
 	@Inject
 	private Greeter greeter;
 	
@@ -49,6 +52,6 @@ public class GreeterTest {
 	public void setGreeter(Greeter greeter) {
 		this.greeter = greeter;
 	}
-
+**/
     
 }
